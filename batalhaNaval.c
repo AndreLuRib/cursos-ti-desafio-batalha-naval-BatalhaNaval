@@ -20,18 +20,25 @@ int main() {
     // Criando os navios (tamanho fixo 3)
     int navioHorizontal[3] = {3, 3, 3};
     int navioVertical[3]   = {3, 3, 3};
+    int navioDiagonal1[3]  = {3, 3, 3};
+    int navioDiagonal2[3]  = {3, 3, 3};
 
     // Coordenadas iniciais
-    // Navio horizontal começa na linha B, coluna 2
-    int linhaH = 1;
-    int colunaH = 2;
+    int linhaH = 1, colunaH = 2; // Horizontal
+    int linhaV = 4, colunaV = 6; // Vertical
+    int linhaD1 = 2, colunaD1 = 1; // Diagonal principal (\)
+    int linhaD2 = 6, colunaD2 = 8; // Diagonal secundária (/)
 
-    // Navio vertical começa na linha E, coluna 6
-    int linhaV = 4;
-    int colunaV = 6;
-
-    // Posicionando o navio horizontal
+    // ===============================
+    // Navio Horizontal
+    // ===============================
     if (colunaH + 3 <= 10) {
+        for (i = 0; i < 3; i++) {
+            if (tabuleiro[linhaH][colunaH + i] != 0) {
+                printf("Erro: sobreposição no navio horizontal!\n");
+                return 1;
+            }
+        }
         for (i = 0; i < 3; i++) {
             tabuleiro[linhaH][colunaH + i] = navioHorizontal[i];
         }
@@ -40,31 +47,67 @@ int main() {
         return 1;
     }
 
-    // Verificando sobreposição e posicionando o navio vertical
+    // ===============================
+    // Navio Vertical
+    // ===============================
     if (linhaV + 3 <= 10) {
-
         for (i = 0; i < 3; i++) {
             if (tabuleiro[linhaV + i][colunaV] != 0) {
-                printf("Erro: sobreposição de navios!\n");
+                printf("Erro: sobreposição no navio vertical!\n");
                 return 1;
             }
         }
-
         for (i = 0; i < 3; i++) {
             tabuleiro[linhaV + i][colunaV] = navioVertical[i];
         }
-
     } else {
         printf("Erro ao posicionar navio vertical!\n");
         return 1;
     }
 
-    // Exibindo o tabuleiro
+    // ===============================
+    // Navio Diagonal Principal (\)
+    // ===============================
+    if (linhaD1 + 3 <= 10 && colunaD1 + 3 <= 10) {
+        for (i = 0; i < 3; i++) {
+            if (tabuleiro[linhaD1 + i][colunaD1 + i] != 0) {
+                printf("Erro: sobreposição no navio diagonal principal!\n");
+                return 1;
+            }
+        }
+        for (i = 0; i < 3; i++) {
+            tabuleiro[linhaD1 + i][colunaD1 + i] = navioDiagonal1[i];
+        }
+    } else {
+        printf("Erro ao posicionar navio diagonal principal!\n");
+        return 1;
+    }
+
+    // ===============================
+    // Navio Diagonal Secundária (/)
+    // ===============================
+    if (linhaD2 + 3 <= 10 && colunaD2 - 2 >= 0) {
+        for (i = 0; i < 3; i++) {
+            if (tabuleiro[linhaD2 + i][colunaD2 - i] != 0) {
+                printf("Erro: sobreposição no navio diagonal secundária!\n");
+                return 1;
+            }
+        }
+        for (i = 0; i < 3; i++) {
+            tabuleiro[linhaD2 + i][colunaD2 - i] = navioDiagonal2[i];
+        }
+    } else {
+        printf("Erro ao posicionar navio diagonal secundária!\n");
+        return 1;
+    }
+
+    // ===============================
+    // Exibição do tabuleiro
+    // ===============================
     printf("\n   ");
     for (i = 0; i < 10; i++) {
         printf("%d ", i);
     }
-
     printf("\n");
 
     for (i = 0; i < 10; i++) {
