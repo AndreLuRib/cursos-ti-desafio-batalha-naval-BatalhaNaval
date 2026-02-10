@@ -1,118 +1,131 @@
 #include <stdio.h>
 
+#define TAM_TAB 10
+#define TAM_HAB 5
+
 int main() {
 
-    // Identificação das linhas (A a J)
-    char linha[10] = {'A','B','C','D','E','F','G','H','I','J'};
+    /* ================= TABULEIRO ================= */
+    int tabuleiro[TAM_TAB][TAM_TAB] = {0};
 
-    // Criando o tabuleiro 10x10
-    int tabuleiro[10][10];
+    /* Navios (apenas para visualização) */
+    tabuleiro[2][3] = 3;
+    tabuleiro[4][6] = 3;
+    tabuleiro[7][1] = 3;
 
-    int i, j;
+    /* ================= MATRIZES DE HABILIDADE ================= */
+    int cone[TAM_HAB][TAM_HAB];
+    int cruz[TAM_HAB][TAM_HAB];
+    int octaedro[TAM_HAB][TAM_HAB];
 
-    // Inicializando o tabuleiro com 0 (água)
-    for (i = 0; i < 10; i++) {
-        for (j = 0; j < 10; j++) {
-            tabuleiro[i][j] = 0;
-        }
-    }
+    int centro = TAM_HAB / 2;
 
-    // Criando os navios (tamanho fixo 3)
-    int navioHorizontal[3] = {3, 3, 3};
-    int navioVertical[3]   = {3, 3, 3};
-    int navioDiagonal1[3]  = {3, 3, 3};
-    int navioDiagonal2[3]  = {3, 3, 3};
+    /* ================= CONE (apontando para baixo) ================= */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
 
-    // Coordenadas iniciais
-    int linhaH = 1, colunaH = 2; // Horizontal
-    int linhaV = 4, colunaV = 6; // Vertical
-    int linhaD1 = 2, colunaD1 = 1; // Diagonal principal (\)
-    int linhaD2 = 6, colunaD2 = 8; // Diagonal secundária (/)
-
-    // ===============================
-    // Navio Horizontal
-    // ===============================
-    if (colunaH + 3 <= 10) {
-        for (i = 0; i < 3; i++) {
-            if (tabuleiro[linhaH][colunaH + i] != 0) {
-                printf("Erro: sobreposição no navio horizontal!\n");
-                return 1;
+            if (i >= centro &&
+                j >= centro - (i - centro) &&
+                j <= centro + (i - centro)) {
+                cone[i][j] = 1;
+            } else {
+                cone[i][j] = 0;
             }
         }
-        for (i = 0; i < 3; i++) {
-            tabuleiro[linhaH][colunaH + i] = navioHorizontal[i];
-        }
-    } else {
-        printf("Erro ao posicionar navio horizontal!\n");
-        return 1;
     }
 
-    // ===============================
-    // Navio Vertical
-    // ===============================
-    if (linhaV + 3 <= 10) {
-        for (i = 0; i < 3; i++) {
-            if (tabuleiro[linhaV + i][colunaV] != 0) {
-                printf("Erro: sobreposição no navio vertical!\n");
-                return 1;
+    /* ================= CRUZ ================= */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+
+            if (i == centro || j == centro) {
+                cruz[i][j] = 1;
+            } else {
+                cruz[i][j] = 0;
             }
         }
-        for (i = 0; i < 3; i++) {
-            tabuleiro[linhaV + i][colunaV] = navioVertical[i];
-        }
-    } else {
-        printf("Erro ao posicionar navio vertical!\n");
-        return 1;
     }
 
-    // ===============================
-    // Navio Diagonal Principal (\)
-    // ===============================
-    if (linhaD1 + 3 <= 10 && colunaD1 + 3 <= 10) {
-        for (i = 0; i < 3; i++) {
-            if (tabuleiro[linhaD1 + i][colunaD1 + i] != 0) {
-                printf("Erro: sobreposição no navio diagonal principal!\n");
-                return 1;
+    /* ================= OCTAEDRO (losango) ================= */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+
+            int di = i - centro;
+            if (di < 0) {
+                di = -di;
+            }
+
+            int dj = j - centro;
+            if (dj < 0) {
+                dj = -dj;
+            }
+
+            if (di + dj <= centro) {
+                octaedro[i][j] = 1;
+            } else {
+                octaedro[i][j] = 0;
             }
         }
-        for (i = 0; i < 3; i++) {
-            tabuleiro[linhaD1 + i][colunaD1 + i] = navioDiagonal1[i];
-        }
-    } else {
-        printf("Erro ao posicionar navio diagonal principal!\n");
-        return 1;
     }
 
-    // ===============================
-    // Navio Diagonal Secundária (/)
-    // ===============================
-    if (linhaD2 + 3 <= 10 && colunaD2 - 2 >= 0) {
-        for (i = 0; i < 3; i++) {
-            if (tabuleiro[linhaD2 + i][colunaD2 - i] != 0) {
-                printf("Erro: sobreposição no navio diagonal secundária!\n");
-                return 1;
+    /* ================= SOBREPOSIÇÃO DAS HABILIDADES ================= */
+
+    /* Pontos de origem no tabuleiro */
+    int origem_cone_l = 3, origem_cone_c = 3;
+    int origem_cruz_l = 6, origem_cruz_c = 6;
+    int origem_octa_l = 8, origem_octa_c = 4;
+
+    /* ---------- CONE ---------- */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+
+            int l = origem_cone_l + i - centro;
+            int c = origem_cone_c + j - centro;
+
+            if (l >= 0 && l < TAM_TAB && c >= 0 && c < TAM_TAB) {
+                if (cone[i][j] == 1 && tabuleiro[l][c] == 0) {
+                    tabuleiro[l][c] = 1;
+                }
             }
         }
-        for (i = 0; i < 3; i++) {
-            tabuleiro[linhaD2 + i][colunaD2 - i] = navioDiagonal2[i];
+    }
+
+    /* ---------- CRUZ ---------- */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+
+            int l = origem_cruz_l + i - centro;
+            int c = origem_cruz_c + j - centro;
+
+            if (l >= 0 && l < TAM_TAB && c >= 0 && c < TAM_TAB) {
+                if (cruz[i][j] == 1 && tabuleiro[l][c] == 0) {
+                    tabuleiro[l][c] = 1;
+                }
+            }
         }
-    } else {
-        printf("Erro ao posicionar navio diagonal secundária!\n");
-        return 1;
     }
 
-    // ===============================
-    // Exibição do tabuleiro
-    // ===============================
-    printf("\n   ");
-    for (i = 0; i < 10; i++) {
-        printf("%d ", i);
-    }
-    printf("\n");
+    /* ---------- OCTAEDRO ---------- */
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
 
-    for (i = 0; i < 10; i++) {
-        printf("%c  ", linha[i]);
-        for (j = 0; j < 10; j++) {
+            int l = origem_octa_l + i - centro;
+            int c = origem_octa_c + j - centro;
+
+            if (l >= 0 && l < TAM_TAB && c >= 0 && c < TAM_TAB) {
+                if (octaedro[i][j] == 1 && tabuleiro[l][c] == 0) {
+                    tabuleiro[l][c] = 1;
+                }
+            }
+        }
+    }
+
+    /* ================= EXIBIÇÃO DO TABULEIRO ================= */
+
+    printf("\nTABULEIRO FINAL:\n\n");
+
+    for (int i = 0; i < TAM_TAB; i++) {
+        for (int j = 0; j < TAM_TAB; j++) {
             printf("%d ", tabuleiro[i][j]);
         }
         printf("\n");
